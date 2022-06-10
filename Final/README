@@ -1,0 +1,44 @@
+Full paths names:
+
+(Design:)
+Integrated design: /afs/umich.edu/class/eecs427/w22/group3/eecs427_integration/tutorial4/eecs427_top
+Baseline processor: /afs/umich.edu/class/eecs427/w22/group3/CAD8/CAD8_LIB/processor_for_final
+SRAM: /afs/umich.edu/class/eecs427/w22/group3/Final_project/FINAL_LIB/integration_16bit
+
+(Simulation:)
+Baseline Fibonacci simulation: /afs/umich.edu/class/eecs427/w22/group3/Final_project/processor_for_final_test_fibonacci
+SRAM SNM analysis: /afs/umich.edu/class/eecs427/w22/group3/Final_project/FINAL_LIB/SRAM_cell_SNMsim
+SRAM block simulation: /afs/umich.edu/class/eecs427/w22/group3/Final_project/FINAL_LIB/SRAM_with_controller
+Integrated design simulation: /afs/umich.edu/class/eecs427/w22/group3/Final_project/Final_processor_sim_run1
+
+*Please refer to the final report or demo video for the detailed description
+
+====================================================================================
+
+Design description:
+
+We build a custom SRAM supporting in-SRAM boolean operations.
+The SRAM is at the same memory level as DMEM and supports 4 additional instructions.
+All transistors are carefully sized for the READ/WRITE/AND/NOR SRAM operations.
+
+===================================================================================
+
+Max operating frequency for baseline processor: 225.7(MHz)
+    Critical path of Datapath: 2.83(ns) (see CAD7 README)
+    Critical path of Controller: 1.6(ns) (see CAD8 README)
+    The critical path of the processor is path(Datapath) + path(Controller)
+    (PC is not in the critical path)
+    Therefore, the min clock cycle is 4.43(ns)
+    The max operating frequency is 225.7(MHz)
+
+====================================================================================
+
+Floorplan details:
+
+1. Core size: 441.98um * 549.8um (242901.64um^2)
+   Chip size (with IO pads): 1264um * 1170um (1478880um^2)
+   Core density: 64%
+2. Power: We use a vertical power stripe in the middle of the design, and block power rings for IMEM and DMEM.
+3. Clock distribution: we route the clock signals in the consideration of performance, so we use positive clock skew in our design.
+   For clk signal, we route through PC first and then route through the controller.
+   For clk_b signal, we route through IMEM first and then route through DMEM.

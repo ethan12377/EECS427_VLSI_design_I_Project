@@ -1,0 +1,109 @@
+Full paths names:
+DFF:
+/afs/umich.edu/class/eecs427/w22/yushengt/CAD2/CAD2_LIB/DFF
+
+====================================================================================
+
+Rise CLK-Q Delay: 0.4404ns
+
+    See spice_DFF_risedelay.png:
+    The delay could be calculated as 21.4904-21.05.
+    
+Fall CLK-Q Delay: 0.4271ns
+
+    See spice_DFF_falldelay.png:
+    The delay could be calculated as 31.4771-31.05.
+    
+Rise Setup Time: 52ps
+
+    See spice_DFF_risesetup.png:
+    When the input (D) is toggled 52ps before CLK rising edge,
+    the CLK-Q delay is 21.5125-21.05, or 0.4625,
+    which is roughly 105% of nominal delay (0.4404).
+
+Fall Setup Time: 52ps
+
+    See spice_DFF_fallsetup.png:
+    When the input (D) is toggled 52ps before CLK rising edge,
+    the CLK-Q delay is 31.4986-31.05, or 0.4486,
+    which is roughly 105% of nominal delay (0.4271).
+    
+Rise Hold Time: 28ps
+
+    See spice_DFF_risehold.png:
+    When the input (D) is toggled 28ps after CLK rising edge,
+    the CLK-Q delay is 31.5122-31.05, or 0.4622,
+    which is roughly 105% of nominal delay (0.4404).
+
+Fall Hold Time: -4ps
+
+    See spice_DFF_fallhold.png:
+    When the input (D) is toggled -4ps after CLK rising edge,
+    the CLK-Q delay is 31.4982-31.05, or 0.4482,
+    which is roughly 105% of nominal delay (0.4271).
+
+====================================================================================
+
+Inputs for NC verilog simulation:
+
+    CLK: period=10ns
+    RSTn: asynchronous reset at 2ns
+    D: toggle every 10ns
+    
+Added delays:
+
+    Setup time: 0.1ns
+
+        Rise setup time: 0.052ns
+        Fall setup time: 0.052ns
+        0.052 is rounded to the first decimal.
+        
+    CLK-Q delay: 0.4ns
+    
+        Rise CLK-Q delay: 0.4404ns
+        Fall CLK-Q delay: 0.4271ns
+        The max delay (0.4404) is chosen and rounded to the first decimal.
+        
+    CLK-Qb delay: 0.5ns
+    
+        Rise CLK-Qb delay: 0.4834ns
+        Fall CLK-Qb delay: 0.4358ns
+        The max delay (0.4834) is chosen and rounded to the first decimal.
+        
+See nc_DFF_w_delay.ps:
+    Q will be toggled 0.4ns after the CLK rising edge.
+    Qb will be toggled 0.5ns after the CLK rising edge.
+    If D changed at the CLK rising edge, Q/Qb will not be updated to the new value
+    since the changing must happen setup time (0.1ns) before the CLK rising edge.
+
+====================================================================================
+
+Input for Spice simulation:
+
+    Setup time analysis:
+        RSTn    (0n:1.2V), (5n:1.2V), (5.1n:0V), (10n:0V), (10.1n:1.2V)
+        CLK     period:10n, pulsewidth:5n,  delay:1n,       risetime:100p,  falltime:100p
+        D       period:20n, pulsewidth:10n, delay:18.5n+td, risetime:100p,  falltime:100p
+        
+    Hold time analysis (rise):
+        RSTn    (0n:1.2V), (5n:1.2V), (5.1n:0V), (10n:0V), (10.1n:1.2V)
+        CLK     period:10n, pulsewidth:5n,  delay:1n,       risetime:100p,  falltime:100p
+        D       (0n:0V), (26n:0V), (26.1n:1.2V), (31n+td:1.2V), (31.1n+td:0V)
+        
+    Hold time analysis (fall):
+        RSTn    (0n:1.2V), (5n:1.2V), (5.1n:0V), (10n:0V), (10.1n:1.2V)
+        CLK     period:10n, pulsewidth:5n,  delay:1n,       risetime:100p,  falltime:100p
+        D       (0n:1.2V), (26n:1.2V), (26.1n:0V), (31n+td:0V), (31.1n+td:1.2V)
+        
+====================================================================================
+
+Layout Area:
+
+DFF: 8.4um x 7.2um = 60.48 um^2
+
+I place all the cells into 3 lines. The bottom one corresponds to the forward path.
+The middle one corresponds to the feedback path. The top one is for c and cbar.
+With the configuration, I can connect forward path and feedback path using less higher metals.
+I follow 2:1 sizing except for transmission gates and the tri-state inverter on the feedback path.
+The transmission gate and the tri-state inverter on the feedback path are sized with 160nm
+so that they won't overpower the forward path.

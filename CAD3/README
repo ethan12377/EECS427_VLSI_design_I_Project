@@ -1,0 +1,122 @@
+Full paths names:
+RF:
+/afs/umich.edu/class/eecs427/w22/group3/CAD3/CAD3_LIB/RF
+
+RF_latch:
+/afs/umich.edu/class/eecs427/w22/group3/CAD3/CAD3_LIB/RF_latch
+
+RF_bit:
+/afs/umich.edu/class/eecs427/w22/group3/CAD3/CAD3_LIB/RF_bit
+
+Speedpath:
+/afs/umich.edu/class/eecs427/w22/group3/CAD3/CAD3_LIB/Speedpath
+
+
+
+
+
+====================================================================================
+
+Estimated parasitic capacitance
+
+Assume each slave size to be 4.4um*5.6um.
+The pre-layout estimation is based on schematic sizing.
+
+                            Wire load                   Attached transistor load
+                                    
+WE_MASTER                   4.4(um)*16*0.2(fF/um)       (0.28+0.16)(um)*1.3(fF/um)*15
+                                = 14.08(fF)                 = 8.58(fF)
+we_master_b                 4.4(um)*16*0.2(fF/um)       (0.28+0.16)(um)*1.3(fF/um)*15
+                                = 14.08(fF)                 = 8.58(fF)    
+wei_clkb                    5.6(um)*16*0.2(fF/um)       (0.28+0.16)(um)*1.3(fF/um)*15
+                                = 17.92(fF)                 = 8.58(fF)
+wei_clk                     5.6(um)*16*0.2(fF/um)       (0.28+0.16)(um)*1.3(fF/um)*15
+                                = 17.92(fF)                 = 8.58(fF)
+QA                          5.6(um)*16*0.2(fF/um)       (0.56+0.56)(um)*1.3(fF/um)*15
+                                = 17.92(fF)                 = 21.84(fF)
+QB                          5.6(um)*16*0.2(fF/um)       (0.56+0.56)(um)*1.3(fF/um)*15
+                                = 17.92(fF)                 = 21.84(fF)
+master-to-slaves node       5.6(um)*16*0.2(fF/um)       (0.28+0.56)(um)*1.3(fF/um)*15
+                                = 17.92(fF)                 = 16.38(fF)
+
+
+Estimated input pin capacitance
+
+WE:         (0.56+0.56)(um)*1.3(fF/um)      = 1.456(fF)
+CLK:        (0.56+0.56)(um)*1.3(fF/um)      = 1.456(fF)
+D:          (0.28+0.56)(um)*1.3(fF/um)      = 1.092(fF)
+WE_MASTER:  (0.28+0.56)(um)*1.3(fF.um)      = 1.092(fF)
+READ_A:     (0.56+0.28+0.56)(um)*1.3(fF/um) = 1.82(fF)
+READ_B:     (0.56+0.28+0.56)(um)*1.3(fF/um) = 1.82(fF)
+
+
+After PEX
+
+WE:         	59.872E-16 F
+CLK:		2.67268E-14 F        
+D:          	22.24E-15 F
+WE_MASTER:	2.60274E-16 F
+READ_A:         92.128E-14 F
+READ_B:         58.56E-14 F
+
+====================================================================================
+
+Pre-layout Delay Estimation:
+
+Write delay: WE_MASTER to inside_node (the data inside the register)
+Read delay: WE_MASTER to QA/QB
+    (in our simulation, WE_MASTER is toggled at the same time with READ_A/READ_B)
+
+Write Fall Delay: 0.44881ns
+Write Rise Delay: 0.52877ns
+Read Fall Delay: 0.66450ns
+Read Rise Delay: 0.50847ns
+
+====================================================================================
+
+Input for Spice simulation:
+
+Delay after PEX:
+    Write Fall Delay: 0.29036ns
+    Write Rise Delay: 0.32256ns
+    Read Fall Delay: 0.7003ns
+    Read Rise Delay: 0.53514ns
+    Read Fall Setup time: 0.01ns
+    Read Fall Hold time: 0.5ns
+    Read Rise Setup time:0 ns 
+    Read Rise Hold time: 0.3ns
+    Write Rise Setup time: 0.04ns
+    Write Rise Hold time: 0.2ns
+    Write Fall Setup time: 0.02ns
+    Write Fall Hold time: 0.2ns
+
+====================================================================================
+
+Inputs for NC verilog simulation:
+
+    
+Add delays 0.7ns and setup time 0.04ns to the schematic diagram.
+
+
+
+
+
+        
+====================================================================================
+
+Layout Area:
+Master bit: 4.8um * 6um
+Slave bit: 4.8um * 6.4um
+
+RF bit: 4.8um * (6um+(6.4um*16)+2.8um) = 4.8um * 111.2um
+For RF bit, we need sixteen slave bits and one master bit. Then the addtional 2.8um(in height) represents the output inverter for QA and QB.
+
+RF: (4.8um * 16 + 2um) * 111.2um = 78.8um * 111.2um = 8762.56um^2
+For RF, we need sixteen RF bits and the control driver(2um in width).
+
+We first implement the layout for the master bit and slave bit. Since these bits will be copied several times in this layout, the sizes are very important. We made it twp layers so that the height and width are close. For subsequent layout, we make READ_A, READ_B, WE_MASTER, WE_clk horizontal through, as well as RSTn, D, QA_bar and QB_bar vertical through. 
+With the design of master and slave bit finished, we worked on the layout of the control driver part and output buffer part. During this process, we need to make sure that both the length/width and the connection match the layout of master/slave bit. 
+After that, we can compose 16 slave bits, a master bit and a output buffer into a rf bit. Then compose 16 rf bits, master and slave control driver into a whole rf. 
+The weigth and height of our final rf design are 78.8um and 111.2um. And the total area is around 8762um^2.
+
+

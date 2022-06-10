@@ -1,0 +1,57 @@
+Full paths names:
+INV:
+/afs/umich.edu/class/eecs427/w22/yushengt/CAD1/CAD1_LIB/INV
+NAND2:
+/afs/umich.edu/class/eecs427/w22/yushengt/CAD1/CAD1_LIB/NAND2
+MUX21:
+/afs/umich.edu/class/eecs427/w22/yushengt/CAD1/CAD1_LIB/MUX21
+
+====================================================================================
+
+Maximum Rise Delay: 0.258357ns
+Between nodes: SEL & OUT
+
+    The IN0 signal go through two NAND gates to the output.
+    The IN1 signal go through two NAND gates to the output.
+    The SEL signal go through one inverter and two NAND gates to the output.
+    Therefore, the critical path is between SEL & OUT.
+    
+Maximum Fall Delay: 0.199966ns
+Between nodes: SEL & OUT
+
+    The IN0 signal go through two NAND gates to the output.
+    The IN1 signal go through two NAND gates to the output.
+    The SEL signal go through one inverter and two NAND gates to the output.
+    Therefore, the critical path is between SEL & OUT.
+    
+Maximum Rise Time: 0.43018ns
+
+Maximum Fall Time: 0.22842ns
+
+====================================================================================
+
+Inputs for NC verilog simulation:
+(All possible input combinations are covered)
+
+INV: IN=0 => IN=1 => IN=0
+
+NAND2: IN0=0, IN1=0 => IN0=0, IN1=1 => IN0=1, IN1=0 => IN0=1, IN1=1
+
+MUX21: IN0=0, IN1=0, SEL=0 => IN0=0, IN1=0, SEL=1 => IN0=0, IN1=1, SEL=0 => IN0=0, IN1=1, SEL=1
+    => IN0=1, IN1=0, SEL=0 => IN0=1, IN1=0, SEL=1 => IN0=1, IN1=1, SEL=0 => IN0=1, IN1=1, SEL=1
+
+====================================================================================
+
+Layout Area:
+
+INV: 2.8um x 1.2um = 3.36 um^2
+
+NAND2: 2.8um x 2.0um = 5.6 um^2
+
+MUX21: 2.8um x 7.2um = 20.16 um^2
+
+I place the 4 cells in a line, and the order is (NAND2-INV-NAND2-NAND2).
+With the configuration, I can minimize the higher level metal usage. (only one line of metal 3)
+I mirror the leftmost NAND2 and the inverter to make the connected pins closer to each other,
+so that I can minimize the interconnect length.
+I also reduce the need for routing using pitch matching (aligning power lines of different cells). 

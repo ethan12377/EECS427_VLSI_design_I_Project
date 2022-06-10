@@ -1,0 +1,125 @@
+Full paths names:
+
+MUX: /afs/umich.edu/class/eecs427/w22/group3/CAD7/CAD7_LIB/MUX
+MUX_test: /afs/umich.edu/class/eecs427/w22/group3/CAD7/CAD7_LIB/MUX_test
+Datapath: /afs/umich.edu/class/eecs427/w22/group3/CAD7/CAD7_LIB/Datapath
+testfixture.verilog: /afs/umich.edu/class/eecs427/w22/group3/CAD6/CAD7_LIB/Datapath_run1/testfixture.verilog
+
+====================================================================================
+
+Design consideration:
+
+Firstly, we implement a module with 3 MUX through verilog. During APR process, we place all inputs and outputs layout pins to the boundary.
+Then connect RF, DMEM, ALU, Shifter and MUX module together.
+
+===================================================================================
+
+Input pin capacitance:
+
+CLK = 5.05706E-14 F
+D<0:15> =1.80987E-14 F
+Read_A<0:15> = 6.46273E-14 F
+Read_B<0:15> = 4.55254E-14 F
+RSTn = 9.948676E-13 F
+WE<0:15> = 3.80157E-15 F
+WE_MASTER = 3.96518E-15 F
+
+WEN = 9.02631E-15 F
+CEN = 7.68389E-14 F
+
+ADD_SUB_SEL = 8.97942E-14
+C_in = 4.29697E-15
+OUT_SEL<1:0> = 1.60456E-13
+
+sel_A = 2.39996E-14 F
+sel_B = 2.56284E-14 F
+sel_D<1:0> = 6.38440E-15 F
+
+Q_imen_8<0:7> = 3.94699E-14 F
+sel_sh_input = 3.61876E-14 F
+sh_in<0:3> = 1.61114E-14 F
+sel_sh<0:1> = 1.94891E-14
+
+Block Output capacitances:
+
+Shifter:7.14123E-15 F
+
+MUX: 	A:4.00001E-14 F
+	B:3.54879E-14 F
+	D:2.98874E-14 F
+
+RF:	QA:9.30526E-14 F
+	QB:9.16742E-14 F
+
+ALU:	Cout:2.26598E-14 F
+	F:1.72079E-14 F
+	N:1.68537E-14 F
+	Z:9.02943E-15 F
+	S:2.31308E-14 F
+
+
+
+
+====================================================================================
+
+Delay comparision table:
+
+
+Rise delay		After		Before
+
+Shifter(A_in to out)	1.14269ns	1.193863ns
+
+ALU(S)			1.32973ns	1.33372ns
+
+RF Write Rise Delay	0.369461ns	0.32256ns
+
+RF Read Rise Delay	0.87775ns	0.53514ns
+
+MUX21			0.19607ns	0.16833ns
+
+MUX31			0.24451ns	0.21772ns
+
+
+
+
+Fall delay		After		Before
+
+Shifter(A_in to out)	1.00713ns	1.128643ns
+
+ALU(S)			1.33104ns	1.33216ns
+
+RF Write Fall Delay	0.28951ns	0.29036ns
+
+RF Read Fall Delay	1.0423ns	0.7003ns
+
+MUX21			0.20841ns	0.17818ns
+
+MUX31			0.198777ns	0.17887ns
+
+
+====================================================================================
+
+Instruction trigger worse case delay calculation
+
+
+ADD/SUB/CMP/AND/OR/XOR:	1.0423 + 0.20841 + 1.33104 + 0.24451= 2.82626ns
+
+To sum up, instructions SUB/CMP have the worse case delay
+
+
+
+====================================================================================
+
+Control signals:
+
+Control signals for each MUX are listed below.
+ADD_SUB_SEL=1: ADD/XOR/OR/AND, ADD_SUB_SEL=0: SUB/CMP.
+OUT_SEL = 2'b00: ADD/SUB/CMP, OUT_SEL=2'b01: XOR, OUT_SEL=2'b10: OR, OUT_SEL=2'b11: AND.
+sel_A=0, A_out=0, sel_A=1, A_out=Qb; sel_B=0, B_out=Imm_16, sel_B=1, B_out=Qa
+shifter: sel_sh_input=0, 2-1mux output=Qb, sel_sh_input=1, 2-1mux output=Imm_16
+shifter: sel_sh = 00, 3-1mux output=Qa, sel_sh=10, 3-1mux output=Imm_8, sel_sh=11, 3-1mux output=8
+sel_D = 01, D_out=Q_dmem, sel_D=10, D_out = alu_out, sel_D = 11, D_out = shifted
+
+====================================================================================
+
+

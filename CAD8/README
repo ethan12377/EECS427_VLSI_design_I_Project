@@ -1,0 +1,91 @@
+Full paths names:
+
+controller: /afs/umich.edu/class/eecs427/w22/group3/CAD8/CAD8_LIB/controller
+Processor post_apr: /afs/umich.edu/class/eecs427/w22/group3/CAD8/CAD8_LIB/processor_backup
+Processor pre_apr: /afs/umich.edu/class/eecs427/w22/group3/CAD8/CAD8_LIB/processor_preapr_nodelay
+testfixture.verilog: /afs/umich.edu/class/eecs427/w22/group3/CAD8/CAD8_LIB/processor_backup/testfixture.verilog
+
+====================================================================================
+
+Design description:
+
+The controller module involves the decoder and the instruciton register.
+We follow the tutorial ISA_W22.pdf to design our decoder.
+We implement all the control signals of the baseline instructions.
+*Under our design, all the branch instrucitons (bcond, jcond, jal) have to be followed by a nop.
+
+===================================================================================
+
+Processor testbench description:
+
+I test all the instructions.
+Please refer to testfile.g3 for the assemble code in IMEM.
+
+===================================================================================
+
+Worst case delay
+
+
+Worst case delay: 1.6ns
+
+Worst case delay path (8 paths in total):
+1.
+  Startpoint: inst_reg_8_0
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: rf_we[6] (output port clocked by clk)
+  
+2.
+  Startpoint: inst_reg_8_0
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: rf_we[2] (output port clocked by clk)
+
+3.
+  Startpoint: inst_reg_6_0
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: rf_read_a[12]
+            (output port clocked by clk)
+  
+4.
+  Startpoint: inst_reg_9_0
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: rf_we[4] (output port clocked by clk)
+
+5.
+  Startpoint: inst_reg_15_0
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: rf_we[11] (output port clocked by clk)
+
+6.
+  Startpoint: inst_reg_15_0
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: rf_we[9] (output port clocked by clk)
+
+7.
+  Startpoint: inst_reg_15_0
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: rf_we[4] (output port clocked by clk)
+
+8.
+  Startpoint: inst_reg_15_0
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: rf_we[3] (output port clocked by clk)
+
+9.
+  Startpoint: inst_reg_7_0
+              (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: rf_read_a[12]
+            (output port clocked by clk)
+            
+How to determine the timing constraint:
+	Picking the arbitrary cycle time -> cut down the cycle time according to the slack of critical path
+	In our case, we started from 4ns and all the way down to 1.2ns. 
+	However, considering the routing complexity and area, we settled at 1.6ns.
+
+====================================================================================
+
+Floorplan ratio:
+
+1. We set the width of the controller the same as the width of the PC, which is 56um. Then set the ratio as 1:1, the apr can work well.
+2. we then fix the width as 56um, and reduce the height of the controller. The smallest height we can achieve is 50.4um.
+3. We try to reduce the the margin from the outside edge of the core box. The minimum distance which can maintain correct layout is 6.4um.
+4. The floorplan ratio = (56+6.4+6.4) : (50.4+6.4+6.4) = 68.8:63.2 = 1:0.9

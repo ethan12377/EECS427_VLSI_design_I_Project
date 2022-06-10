@@ -1,0 +1,78 @@
+Full paths names:
+inverter: /afs/umich.edu/class/eecs427/w22/group3/CAD5/CAD5_LIB/inverter
+mux21: /afs/umich.edu/class/eecs427/w22/group3/CAD5/CAD5_LIB/MUX21
+shhift_280560: /afs/umich.edu/class/eecs427/w22/group3/CAD5/CAD5_LIB/shhift_280560
+shhift_5601120: /afs/umich.edu/class/eecs427/w22/group3/CAD5/CAD5_LIB/shhift_5601120
+shhift_8401680: /afs/umich.edu/class/eecs427/w22/group3/CAD5/CAD5_LIB/shhift_8401680
+shhift_11202240: /afs/umich.edu/class/eecs427/w22/group3/CAD5/CAD5_LIB/shhift_11202240
+shhifter: /afs/umich.edu/class/eecs427/w22/group3/CAD5/CAD5_LIB/shhifter
+speed_path: /afs/umich.edu/class/eecs427/w22/group3/CAD5/CAD5_LIB/speed_path
+
+shifter's design explanation:
+
+For MUXes:
+We use one MUX21 to select A and two MUX21es to select the shifter bits.
+For shifter:
+we first implement a 1 bit left shifter with two pass gate and a keeper in every shift stage. The keeper aims to increase the noise tolerance.
+THen we use the RC delay formula to size the inverter in the keeper to minimize the calculated delay. 
+Assume that the output capacitor is 25fF and we can find the optimum delay for the critical path.
+Then we perform some modification and size the inverter to be 280/560nm, 560/1120nm, 840/1680nm and 1120/2240nm for different levels.
+Under this circumstance, total dealy is 0.15ns and is just a little bit higher than the optimum delay.
+
+====================================================================================
+Worst case delay:
+
+critical path: A_in*<0> to out<15>
+In the logarithmic shifter, any input A to output B includes four levels of shifter. However, A<0> to B<15> has the longest wire, which will result additional delay.
+
+Pre-layout Delay Estimation: 0.15ns
+
+
+Estimated input pin capacitance
+(Estimating the attached transistor load)
+
+A_in*<0:15>:    (0.28+0.56)(um)*1.3(fF/um)		   	        = 1.092(fF)
+sh_in*<0:3>:    (0.28+0.56)(um)*1.3(fF/um)			        = 1.092(fF)
+A_sel:          (0.28+0.56+0.28+0.56)(um)*1.3(fF/um)		= 2.194(fF)
+sh_sel<0:3>:    (0.28+0.56+0.28+0.56)(um)*1.3(fF/um)		= 2.194(fF)
+
+After PEX
+
+A_in*:          8.90601E-15(F)
+sh_in*:         1.16641E-15(F)
+A_sel:          2.70542E-14(F)
+sh_sel:         9.75042E-15(F)
+
+The real capacitances are larger than the esimated ones, which might be due to the neglected wire load during estimation.
+
+===================================================================================
+
+Simulation delay time:
+
+(Critical path: delay from A_in* to out)
+
+Rise delay:     1.193863(ns)
+Fall delay:     1.128643(ns)
+
+====================================================================================
+
+Inputs for NC verilog simulation:
+Adding 1.2ns delay to the "out<0:15>" as the delay of critical path in post-PEX simulation.
+
+        
+====================================================================================
+
+
+Layout Area for different hierarchy:
+
+MUX21:			4.8um * 6.8um = 32.64um^2 
+shift_280560:		4.8um * 4.4um = 21.12um^2
+shift_5601120: 		4.8um * 4.4um = 21.12um^2
+shift_8401680:  	4.8um * 4.4um = 21.12um^2
+shift_5601120: 		4.8um * 4.4um = 21.12um^2
+shifter:		(4.8um*16+2um)*47.2= 3719.36um^2
+
+We frist layout MUX21, inverter, shift_280560, shift_5601120, shift_8401680 and shift_11202240 individually. Then, we combine them together in the shifter cell with hierarchy design. We put different stages shift bit from the bottom to the top. A<0> to A<15> is from left to right. We add mux at the bottom of the layour and inverter on the left hand side of the layout.
+To make the Shifter to match the width of ALU and RF, we use bit width = 4.8um and overall Shifter width = 78.8um. The height is 47.2 um. So the total layout area is 78.8um*47.2um=3719.36um^2
+
+

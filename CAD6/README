@@ -1,0 +1,60 @@
+Full paths names:
+PC: /afs/umich.edu/class/eecs427/w22/group3/CAD6/CAD6_LIB/PC
+IMEM: /afs/umich.edu/class/eecs427/w22/group3/CAD6/CAD6_LIB/Inst_rom_g3
+PC_behavior_test: /afs/umich.edu/class/eecs427/w22/group3/CAD6/CAD6_LIB/PC_behavior_test
+PC post apr test: /afs/umich.edu/class/eecs427/w22/group3/CAD6/CAD6_LIB/PC_test
+
+PC's design explanation:
+
+In view of the pipelined design, we add a stall input for the PC module.
+If the instruction is a jump or branch, the stall signal should be asserted, so that the PC is not going to fetch the next instruction.
+(The first stage of the pipeline is going to be locked at this time.)
+After the decode result is obtained, PC can calculate the branch target according the control inputs, so it can fetch the right next PC.
+In our design, branch target is calculated in PC.
+
+====================================================================================
+
+Worst case delay: 2ns
+
+Worst case delay path (3 paths in total):
+1.
+  Startpoint: PC_reg_3_0 (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: PC_reg_10_0
+            (rising edge-triggered flip-flop clocked by clk)
+2.
+  Startpoint: PC_reg_1_0 (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: PC_reg_10_0
+            (rising edge-triggered flip-flop clocked by clk)
+
+3.
+  Startpoint: PC_reg_3_0 (rising edge-triggered flip-flop clocked by clk)
+  Endpoint: PC_reg_11_0
+            (rising edge-triggered flip-flop clocked by clk)
+
+How to determine the timing constraint:
+	Picking the arbitrary cycle time -> cut down the cycle time according to the slack of critical path
+	In our case, we started from 4ns and all the way down to 1.2ns. 
+	However, considering the routing complexity and area, we settled at 2ns.
+
+====================================================================================
+
+Verilog Simulation pattern explanation:
+0-15 ns 	reset
+15-115ns	PC add 1 every cycle
+115-125ns	testing branch address
+125-135ns	testing jump address
+135-295ns	stall & wait for scan chain result
+
+====================================================================================
+
+Floorplan ratio:
+
+1. We fixed core height at 74um, tried to decrease width gradually. The minimum width which can maintain correct layout is 52um.
+
+2. We then fixed core width at 52um, tried to decrease height gradually. The minimum height which can maintain correct layout is 72.8um.
+
+3. On this basis, gradually increase the width and decrease the height to minimize the area. The optimized size is 56um width and 61.2um height.
+
+3. We tried to reduce the margin from the outside edge of the core box. The minimum distance which can maintain correct layout is 6.4um.
+
+4. The floorplan ratio = (56+6.4+6.4) : (61.2+6.4+6.4) = 68.8:74 = 1:1.1

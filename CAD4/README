@@ -1,0 +1,99 @@
+Full paths names:
+1 bit_FA: /afs/umich.edu/class/eecs427/w22/group3/CAD4/CAD4_LIB/FA_1bit
+2-1 MUX: /afs/umich.edu/class/eecs427/w22/group3/CAD4/CAD4_LIB/MUX21
+CSA_stage: /afs/umich.edu/class/eecs427/w22/group3/CAD4/CAD4_LIB/CSA_stage
+PSR: /afs/umich.edu/class/eecs427/w22/group3/CAD4/CAD4_LIB/PSR
+ALU: /afs/umich.edu/class/eecs427/w22/group3/CAD4/CAD4_LIB/ALU
+ALU test: /afs/umich.edu/class/eecs427/w22/group3/CAD4/CAD4_LIB/ALU_test
+NOR4 sublayout: /afs/umich.edu/class/eecs427/w22/group3/CAD4/CAD4_LIB/NOR4_sublayout
+
+
+
+
+ALU's design explanation:
+
+We use shared logic with adder and linear carry select adder. 
+Each stage of carry select adder use a 4-bit carry ripple adder,
+We implement SUB/CMP within one cycle. For each bit full adder, we have inverter to inverse B siganl for SUB and a 2-1 MUX controled by ADD_SUB_SEL to select between B and B_bar. We also have a 4-1 MUX controlled by OUT_SEL to select 4 output results. 
+In the highest hierarchy ALU, ADD_SUB_SEL control the MUX to select between Cin for ADD and VDD for SUB instruction. 
+PSR schematic contains the flags design. Z has four 4-input OR gates and one 4-input NOR gate. N has one 3-input XOR gate. F has one 2-input XOR gate.
+ADD_SUB_SEL=1: ADD/XOR/OR/AND, ADD_SUB_SEL=0: SUB/CMP.
+OUT_SEL = 2'b00: ADD/SUB/CMP, OUT_SEL=2'b01: XOR, OUT_SEL=2'b10: OR, OUT_SEL=2'b11: AND.
+
+
+====================================================================================
+Worst case delay numbers and explanations of the delays:
+
+Worst case delay path:
+  B<0:15> to N/Z/F delay, which includes the following parts: 
+  1. Setup: B goes through an inverter and a 2-1 MUX for the select between B (ADD) and B_bar (SUB/CMP), then the output of the MUX goes through an XOR gate.
+  2. Carry: Within each 4-bit carry ripple adder, the carry chain contains four NAND + NAND gate pairs.
+  3. MUX: With each stage contains four bits, there are four stages. For each stage, the Cout of the previous stage will be used to control 2-1 MUXs to select between the "0" carry results and the "1" carry results.
+  4. PSR: The Cout and S of the 4th stage will be the input of the PSG circuits to calculate the Z/F/N flags.
+
+t_adder = t_setup + Mt_carry  + (N/M)t_mux + t_PSR
+
+M = 4 , N = 16
+
+t_setup = t_inv + t_nand  + t_nand + t_inv + t_xor
+t_carry = t_nand + t_nand (G = A AND B, C_out = G OR (C_in AND P), to save two inverters, we use three NANDs instead of two ANDs and one OR: C_out = (A NAND B) NAND (C_in NAND P).Thus, t_carry = t_nand + t_nand)
+t_mux = t_nand + t_nand
+t_PSR = max((t_nor (4-input) + t_inv + t_nor (4-input)), (t_inv + t_xor(2-input)), (t_inv + t_xor(3-input)))
+
+Pre-layout Delay Estimation: 1.4ns
+
+
+Estimated input pin capacitance
+
+A:		(0.16+0.16+0.16+0.16+0.56+1.12)(um)*1.3(fF/um)			= 2.808(fF)
+B:		(0.56+0.28+0.56+0.56)(um)*1.3(fF/um)				= 2.548(fF)
+Cin:		(0.56+0.28)(um)*1.3(fF/um)					= 1.092(fF)
+ADD_SUB_SEL:	(0.56+0.56+16*(0.56+0.28+0.56+0.56))(um)*1.3(fF/um)	        = 42.224(fF)
+OUT_SEL:	16*(0.16+0.16+0.16+0.16+0.16+0.16)(um)*1.3(fF/um)		= 19.968(fF)
+
+
+After PEX
+
+A:           1.52087E-14 F
+B:           9.89761E-15 F
+Cin:         4.29643E-16 F
+ADD_SUB_SEL: 8.32404E-14 F
+OUT_SEL:     1.05491E-13 F
+
+===================================================================================
+
+Simulation delay time:
+
+Z result: Rise/Fall 1.30ns/1.25ns
+F result: Rise/Fall 0.67ns/0.68ns
+N result: Rise/Fall 1.88ns/2.06ns
+
+====================================================================================
+
+Inputs for NC verilog simulation:
+
+Add 1.9ns delay as the worst case delay at the inputs, and then run NCverilog simulation again.    
+
+        
+====================================================================================
+
+
+Layout Area for different hierarchy:
+
+FA_1bit:	4.8um  * 44.4um  = 213.12 um^2 
+CSA:		19.2um * 104.8um = 2012.16um^2
+PSR: 		76.8um * 4.4um	 = 344.96um^2
+ALU: 		78.4um * 113.2um = 8386.56um^2
+
+To make the ALU match the RF, the bit width (width of FA_1bit) is constrained to 4.8um.
+Since we are implementing the carry-select design, two vertical FA_1bit are arranged in a vertical lines. In such configuration, The signal A, B, and S should be able to walk across the FA_1bit, so 3 vertical M2 rails should be preserved for global routing. Similarly, 3 horizontal M3 rails should also be preserved for the SEL signals.
+In the CSA stage, Cout of every FA_1bit should be connected to the Cin of the nearby FA_1bit cell, so they are arranged to be the same height in the FA_1bit layout.
+
+The CSA stage is made up of 8 FA_1bit and 6 MUX21. The module arrangement is identical to the discussion slide which stack the 2 FA_1bit and 1 MUX21 in vertical direction. As for the additional 2 MUX21 for the last and second last stage of Cout, we directly stacked them on top of aforementioned MUX21. This made the height of CSA_stage come to 104.8um (2*44.4um + 2*4um).
+
+As for the PSR, we distributed the logic gate for output Z evenly to connect the ALU output of each bit without overusing the horizontal routing resource in single spot. For the logic N and F, we put the logic gate in the rightmost of the layout since it use only cout and sum of last and second last bit.
+
+The ALU composes of 4 CSA_stage, PSR stage and additional inverter and NAND2 gate. The stacking height comes to 113.2um (4.0um + 104.8um + 4.4um). As for the width, since it would need the global signal for MUX selection and function control, extra 4 M2 routings located in the leftmost of layout adding the width of layout to 78.4um(76.8um + 1.6um).
+
+
+
